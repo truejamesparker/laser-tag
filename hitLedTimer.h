@@ -20,6 +20,8 @@ bool hitLedTimer_running();
 // Standard tick function.
 void hitLedTimer_tick();
 
+void hitLedTimer_runTest();
+
 
 
 #endif /* HITLEDTIMER_H_ */

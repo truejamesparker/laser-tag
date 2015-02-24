@@ -6,7 +6,8 @@
  */
 
 #include "filter.h"
-
+#include "supportFiles\intervalTimer.h"
+// #include "supportFiles/intervalTimer.h"
 
 #define XQUEUE_LENGTH 31
 #define YQUEUE_LENGTH 11
@@ -179,4 +180,30 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t* indexOf
 	for (int i=0; i<IIR_FILTER_COUNT; i++) {
 		normalizedArray[i] = currentPowerValue[i]/highPower;
 	}
+}
+
+void filter_runPowerTest(double inputSignal[], int size) {
+	double dur;
+	intervalTimer_initAll();
+	intervalTimer_reset(1);
+	for(int i=0; i<size-1; i++) {
+		filter_addNewInput(inputSignal[i]);
+		filter_firFilter();
+		filter_iirFilter(0);
+		filter_computePower(0, false, false);
+	}
+
+	intervalTimer_start(1);
+	filter_computePower(0, false, false);
+	intervalTimer_stop(1);
+	intervalTimer_getTotalDurationInSeconds(1, &dur);
+	printf("Computer Power Optimized: %.10lf\n", dur);
+
+	intervalTimer_reset(1);
+	intervalTimer_start(1);
+	filter_computePower(0, true, false);
+	intervalTimer_stop(1);
+	intervalTimer_getTotalDurationInSeconds(1, &dur);
+	printf("Computer Power Non-Optimized: %.10lf\n", dur);
+
 }
