@@ -11,7 +11,7 @@
 #define XQUEUE_LENGTH 31
 #define YQUEUE_LENGTH 11
 #define ZQUEUE_LENGTH 11
-#define POWER_QUEUE_LENGTH 20000
+#define POWER_QUEUE_LENGTH 2000
 
 #define FALSE 0
 #define TRUE 1
@@ -169,7 +169,7 @@ double filter_getCurrentPowerValue(uint16_t filterNumber) {
 // Uses the last computed-power values, scales them to the provided lowerBound and upperBound args, returns the index of element containing the max value.
 // The caller provides the normalizedArray that will contain the normalized values. indexOfMaxValue indicates the channel with max. power.
 void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t* indexOfMaxValue) {
-	double highPower = 0;
+	double highPower = 0.0;
 	for (int i=0; i<IIR_FILTER_COUNT; i++) {
 		if (currentPowerValue[i] > highPower) {
 			highPower = currentPowerValue[i];

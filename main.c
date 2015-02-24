@@ -28,28 +28,30 @@ int main() {
 	double normalizedArray[10];
 	uint16_t winner;
 	uint16_t last_winner=11;
-
+	int count = 0;
 	int player = 0;
-	uint16_t j = 0;
+	uint32_t j = 0;
 	while(j<end) {
 		filter_addNewInput(inputSignal[j]);	
-
-		if (j%10==0) {
+		if (count==10) {
 			filter_firFilter();
 			for (int i=0; i<10; i++) {
 				filter_iirFilter(i);
-				filter_computePower(i, true, false);
+				filter_computePower(i, false, false);
 				// printf("Current Power: %lf\n", filter_getCurrentPowerValue(i));
+				
+			}
+
 			filter_getNormalizedPowerValues(normalizedArray, &winner);
-			// if (winner!=last_winner) {
-				printf("%u\n", winner);
-				// last_winner = winner;
-			}
-			}
+			// if (winner!=last_winner && j>200) {
+				printf("Top Power: %u\n", winner);
+				last_winner = winner;
+			// }
 
 
+			count = 0;
 		}
-		
+		count++;
 		
 		// for(int i=0; i<10; i++) {
 			// filter_iirFilter(9);
