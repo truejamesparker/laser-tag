@@ -3,6 +3,8 @@
 #include "supportFiles/leds.h"
 #include <stdint.h>
 #include "isr.h"
+#include "hitLedTimer.h"
+#include "lockoutTimer.h"
 #include "stdio.h"
 #include "supportFiles/mio.h"
 #include "globals.h"
@@ -14,13 +16,17 @@
 #define DETECTOR_OUTPUT_PIN 11
 #define TRUE 1
 #define FALSE 0
-#define SCALE_FACTOR 4096.00
+#define THRESHHOLD_FACTOR 3.00
+#define SCALE_FACTOR 4095.00
+#define MEDIAN_INDEX 4
 
-static volatile bool hit = false;
+static volatile bool hitFlag = false;
+static volatile uint16_t hitArray[NUM_FILTERS];
+
 static double currentPowerValues[NUM_FILTERS];
+static double sortedPowerIndexArray[NUM_FILTERS];
 
 
-void addDataToAdcBuffer(uint32_t adcData);
 uint32_t isr_removeDataFromAdcBuffer();
 uint32_t isr_adcBufferElementCount();
 
@@ -39,83 +45,89 @@ detector() {
 		// isr_popAdcQueueData();
 		rawAdcValue = isr_removeDataFromAdcBuffer();
 		interrupts_enableArmInts();
-		scaledAdcValue = (double)rawAdcValue/(SCALE_FACTOR);
+		scaledAdcValue = (2*(double)rawAdcValue/(SCALE_FACTOR))-1;
 		filter_addNewInput(scaledAdcValue);
 		if(count==10) {
 			filter_firFilter();
 			for(int j=0; j<NUM_FILTERS; j++) {
 				filter_iirFilter(j);
 			}
-			if(!lockoutTimer_running) {
-				detector_hitDetected();
+			if(!lockoutTimer_running()) {
+				if(detector_hitDetected()) {
+					lockoutTimer_start();
+					hitLedTimer_start();
+					hitFlag = true;
+				}
 			}
 		}
 		count++;
-
 	}
-
-
 }
-
-
 
 void dector_clear() {
-	hit = false;
+	// unset the hit flag
+	hitFlag = false;
+	// clear hit array
+	for(int i=0; i<NUM_FILTERS; i++) {
+		hitArray[i] = 0;
+	}
 }
+
+
 
 bool detector_hitDetected() {
-	return hit;
-}
+	double curPower, medianPower, threshholdPower;
+	double powerArray = currentPowerValues;
 
-enum DetectorStates {
-	waiting_st,
-	lockout_st,
-};
+	for(int i=0; i<NUM_FILTERS; i++) {
+		curPower = filter_getCurrentPowerValue(i);
+		currentPowerValues[i] = curPower;
+	}
+	detector_insertionSort(sortedIndexArray, powerArray, NUM_FILTERS);
 
-// Initialize trigger state
-DetectorStates DetectorState = waiting_st;
+	uint8_t medianIndex = sortedIndexArray[MEDIAN_INDEX]; // get index of median power
+	uint8_t maxIndex = sortedIndexArray[NUM_FILTERS-1]; // get index of highest power
 
+	medianPower = currentPowerValues[medianIndex]; // use sorted index to get median power value
+	threshholdPower = medianPower * THRESHHOLD_FACTOR; // compute threshhold power
 
-void dector_tick() {
-	static uint32_t lockoutCounter;
-
-	// State actions
-	switch(DetectorState) {
-		case waiting_st:
-			
-			break;
-		case lockout_st:
-			
-			break;
-		default:
-			break;
+	// iterate through the power values to see if power > threshhold power
+	int flag = false; // determine whether to raise the hitFlag
+	for (int i=0; i<NUM_FILTERS; i++) {
+		if (currentPowerValues[i]>threshholdPower) {
+			hitArray[i] = 1;
+			flag = true;
+		}
+		else
+			hitArray[i] = 0;
 	}
 
-	switch(DetectorState) { // Transitions
-
-		case waiting_st: // init state
-			if (detector_hit()) {
-				DetectorState = lockout_st;
-			}
-			else {
-				DetectorState = waiting_st;
-			}
-			break;
-
-		case lockout_st: // start debounce counter
-			if (lockoutCounter==LOCKOUT_DURATION) {
-				DetectorState = waiting_st;
-			}
-			else {
-				DetectorState = lockout_st;
-			}
-			break;
-
-		default:
-			DetectorState = waiting_st;
-			break;
-	}
+	if (flag)
+		return true;
+	else
+		return false;
 }
+
+void detector_getHitCounts(*array) {
+	array = hitArray;
+}
+
+
+void detector_insertionSort (int *indexArray, int *powerArray, int elementCount) {
+    int i, j, t, r;
+    for (i = 1; i < elementCount; i++) {
+        t = powerArray[i];
+        r = i;
+        for (j = i; j > 0 && t < powerArray[j - 1]; j--) {
+            powerArray[j] = powerArray[j - 1];
+            indexArray[j] = indexArray[j-1];
+        }
+        powerArray[j] = t;
+        index[j] = r;
+    }
+}
+
+
 
 
 
