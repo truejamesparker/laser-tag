@@ -12,6 +12,7 @@
 #define IIR_COEF_COUNT 11
 #define FIR_COEF_COUNT 31
 #define IIR_FILTER_COUNT 10
+#define NUM_FILTERS 10
 
 static double firCoefficients[FIR_COEF_COUNT] = { 
 -0.000000398357094,

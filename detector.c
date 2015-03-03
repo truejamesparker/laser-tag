@@ -1,9 +1,3 @@
-/*
- * detector.c
- *
- *  Created on: Dec 22, 2014
- *      Author: hutch
- */
 
 #include "supportFiles/interrupts.h"
 #include "supportFiles/leds.h"
@@ -11,19 +5,66 @@
 #include "isr.h"
 #include "stdio.h"
 #include "supportFiles/mio.h"
+#include "globals.h"
+#include "lockoutTimer.h"
+#include <stdbool.h>
 
 #define TRANSMITTER_TICK_MULTIPLIER 3	// Call the tick function this many times for each ADC interrupt.
 #define LOCKOUT_DURATION 500000
 #define DETECTOR_OUTPUT_PIN 11
 #define TRUE 1
 #define FALSE 0
+#define SCALE_FACTOR 4096.00
 
-void detector_init() {
-	mio_setPinAsOutput(DETECTOR_OUTPUT_PIN);
+static volatile bool hit = false;
+static double currentPowerValues[NUM_FILTERS];
+
+
+void addDataToAdcBuffer(uint32_t adcData);
+uint32_t isr_removeDataFromAdcBuffer();
+uint32_t isr_adcBufferElementCount();
+
+void dector_init() {
+	filter_init();
 }
 
-bool detector_hit() {
-	return TRUE;
+detector() {
+	uint32_t elementCount = isr_adcBufferElementCount();
+	uint32_t rawAdcValue;
+	double scaledAdcValue;
+	int count=0;
+
+	for(int i=0; i<elementCount; i++) {
+		interrupt_disableArmInts();
+		// isr_popAdcQueueData();
+		rawAdcValue = isr_removeDataFromAdcBuffer();
+		interrupts_enableArmInts();
+		scaledAdcValue = (double)rawAdcValue/(SCALE_FACTOR);
+		filter_addNewInput(scaledAdcValue);
+		if(count==10) {
+			filter_firFilter();
+			for(int j=0; j<NUM_FILTERS; j++) {
+				filter_iirFilter(j);
+			}
+			if(!lockoutTimer_running) {
+				detector_hitDetected();
+			}
+		}
+		count++;
+
+	}
+
+
+}
+
+
+
+void dector_clear() {
+	hit = false;
+}
+
+bool detector_hitDetected() {
+	return hit;
 }
 
 enum DetectorStates {
@@ -41,10 +82,10 @@ void dector_tick() {
 	// State actions
 	switch(DetectorState) {
 		case waiting_st:
-			lockoutCounter=0;
+			
 			break;
 		case lockout_st:
-			lockoutCounter++;
+			
 			break;
 		default:
 			break;
