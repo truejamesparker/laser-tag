@@ -6,6 +6,7 @@
  */
 #include "lockoutTimer.h"
 #include "supportFiles/interrupts.h"
+#include "supportFiles/intervalTimer.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "stdio.h"
@@ -40,7 +41,7 @@ enum LockoutTimerStates {
 };
 
 // Initialize trigger state
-LockoutTimerStates LockoutTimerState = waiting_st;
+LockoutTimerStates volatile LockoutTimerState = waiting_st;
 
 
 void lockoutTimer_tick() {
@@ -83,4 +84,18 @@ void lockoutTimer_tick() {
 			LockoutTimerState = waiting_st;
 			break;
 	}
+}
+
+
+void lockoutTimer_runTest() {
+	printf("Starting lockoutTimer_runTest\n");
+	double dur;
+	intervalTimer_initAll();
+	intervalTimer_reset(1);
+	intervalTimer_start(1);
+	lockoutTimer_start();
+	while(lockoutTimer_running());
+	intervalTimer_stop(1);
+	intervalTimer_getTotalDurationInSeconds(1, &dur);
+	printf("lockoutTimer Duration: %lf\n", dur);
 }

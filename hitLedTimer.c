@@ -7,6 +7,7 @@
 
 #include "hitLedTimer.h"
 #include "supportFiles/interrupts.h"
+#include "supportFiles/intervalTimer.h"
 #include "supportFiles/leds.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -20,7 +21,7 @@
 #define ON 1
 #define OFF 0
 
-static bool runHit = false;
+static volatile bool runHit = false;
 // Need to init things.
 void hitLedTimer_init() {
 	leds_init(false);
@@ -48,7 +49,7 @@ enum LedTimerStates {
 };
 
 // Initialize trigger state
-LedTimerStates LedTimerState = waiting_st;
+LedTimerStates volatile LedTimerState = waiting_st;
 
 
 void hitLedTimer_tick() {
@@ -95,6 +96,19 @@ void hitLedTimer_tick() {
 			LedTimerState = waiting_st;
 			break;
 	}
+}
+
+void hitLedTimer_runTest() {
+	printf("Starting hitLedTimer_runTest\n");
+	intervalTimer_initAll();
+	double dur;
+	intervalTimer_reset(1);
+	intervalTimer_start(1);
+	hitLedTimer_start();
+	while(hitLedTimer_running());
+	intervalTimer_stop(1);
+	intervalTimer_getTotalDurationInSeconds(1, &dur);
+	printf("hitLedTimer Duration: %lf\n", dur);
 }
 
 

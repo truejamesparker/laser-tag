@@ -1,26 +1,19 @@
-/*
- * isr.h
- *
- *  Created on: Jan 2, 2015
- *      Author: hutch
- */
-
 #ifndef ISR_H_
 #define ISR_H_
 
-// Removes data from the ADC queue.
-//queue_data_t isr_popAdcQueueData();
+// isr provides the isr_function() where you will place functions that require accurate timing.
+// A buffer for storing values from the Analog to Digital Converter (ADC) is implemented in isr.c
 
-// Lets you know how many elements are in the queue.
-//queue_size_t isr_adcQueueElementCount();
-
-// Gives you the total of ADC samples that have been taken thus far.
-uint64_t isr_getTotalAdcSampleCount();
-
-// Provided so that you can init any necessary data structures.
+// Performs inits for anything in isr.c
 void isr_init();
 
-// This is the function that the code that is invoked when a timer interrupt occurs.
+// This function is invoked by the timer interrupt at 100 kHz.
 void isr_function();
+
+// This removes a value from the ADC buffer.
+uint32_t isr_removeDataFromAdcBuffer();
+
+// This returns the number of values in the ADC buffer.
+uint32_t isr_adcBufferElementCount();
 
 #endif /* ISR_H_ */

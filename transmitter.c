@@ -67,7 +67,7 @@ enum TransmitStates {
 };
 
 // Initialize transmitter state
-TransmitStates TransmitState = init_st;
+TransmitStates volatile TransmitState = init_st;
 
 
 void transmitter_tick() {
@@ -159,13 +159,18 @@ void transmitter_tick() {
 void transmitter_runTest() {
 
 	transmitter_init();
+	switches_init();
+	buttons_init();
 
-	for (int i=0; i<10; i++) {
-		printf("Transmitting at frequency %d\n", i);
-		transmitter_setFrequencyNumber(i);
+	while(true) {
+		printf("Transmitting at frequency %d\n", switches_read());
+		transmitter_setFrequencyNumber(switches_read());
 		transmitter_run();
 		while(transmitter_running());
 		utils_msDelay(500);
+		if(buttons_read()) {
+			break;
+		}
 	}
 	printf("transmit_runTest complete!\n");
 }

@@ -20,6 +20,8 @@ bool lockoutTimer_running();
 // Standard tick function.
 void lockoutTimer_tick();
 
+void lockoutTimer_runTest();
+
 
 
 #endif /* LOCKOUTTIMER_H_ */
