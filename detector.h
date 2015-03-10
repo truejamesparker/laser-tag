@@ -1,19 +1,32 @@
 #ifndef DETECTOR_H_
 #define DETECTOR_H_
-
-
-// Standard initialization function. 
-// This would need to call filter_init() and 
-// initialize any data structure that you will use.
-
- void detector_init();
-// This runs the entire detector including the decimating 
-// FIR-filter, all 10 IIR-filters, power computation, and the threshold-detection scheme.
- void detector();
-
-
-
-void detector_tick();
-
-
+ 
+#include <stdint.h>
+#include <stdbool.h>
+ 
+#define DETECTOR_TEST_INPUT_PIN 15	 				// JF12 on ZYBO Board. Also bit 0 when reading a bank. Easy to AND.
+#define DETECTOR_HIT_THRESHOLD_MULTIPLIER	200	// Just a guess where the max value is around 280 for 200 ms pulse.
+#define DETECTOR_HIT_ARRAY_SIZE (FILTER_IIR_FILTER_COUNT)
+ 
+ 
+typedef uint16_t detector_hitCount_t;
+ 
+// Always have to init things.
+void detector_init();
+ 
+// Used to grab debug values during debugging.
+queue_t* detector_getDebugQueue();
+ 
+// Runs the entire detector: decimating fir-filter, iir-filters, power-computation, hit-detection.
+void detector();
+ 
+// Invoke to determine if a hit has occurred.
+bool detector_hitDetected();
+ 
+// Clear the detected hit once you have accounted for it.
+void detector_clearHit();
+ 
+// Get the current hit counts.
+void detector_getHitCounts(detector_hitCount_t hitArray[]);
+ 
 #endif /* DETECTOR_H_ */

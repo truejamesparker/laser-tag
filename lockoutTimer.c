@@ -62,7 +62,7 @@ void lockoutTimer_tick() {
 	switch(LockoutTimerState) { // Transitions
 
 		case waiting_st: // init state
-			if (lockoutTimer_running()) {
+			if (runLockout) {
 				LockoutTimerState = lockout_st;
 			}
 			else {

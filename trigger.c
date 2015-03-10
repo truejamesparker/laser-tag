@@ -10,6 +10,7 @@
 #include "supportFiles/mio.h"
 #include "supportFiles/buttons.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 #define HOLD_TIME 5000
 #define TRIGGER_BUTTON 0
@@ -18,15 +19,20 @@
 #define TRUE 1
 #define FALSE 0
 
-static bool ignoreGunInput = FALSE;
+static bool ignoreGunInput = false;
+static volatile bool runTrigger = false;
 
 bool triggerPressed();
+
+void trigger_enable() {
+	runTrigger = true;
+}
 
 void trigger_init() {
   	mio_setPinAsInput(TRIGGER_INPUT_PIN);
   // If the trigger is pressed when trigger_init() is called, assume that the gun is not connected and ignore it.
 	if (triggerPressed()) {
-		ignoreGunInput = TRUE;
+		ignoreGunInput = true;
 	}
 }
 
@@ -75,13 +81,15 @@ void trigger_tick() {
 
 	switch(TriggerState) { // Transitions
 		case start_st: // start state (transition to init)
-			printf("Initializing Trigger SM\n");
-			TriggerState = init_st;
+			// printf("Initializing Trigger SM\n");
+			if(runTrigger){
+				TriggerState = init_st;
+			}
 			break;
 
 		case init_st: // init state
 			if (triggerPressed()){
-				printf("Trigger press detected!\n");
+				 printf("Trigger press detected!\n");
 				TriggerState = debounceTrigger_st;
 			}
 			else {
@@ -94,7 +102,7 @@ void trigger_tick() {
 				TriggerState = init_st;
 			}
 			else if (debounceCounter == HOLD_TIME) {
-				printf("Transitioning to fire_st\n");
+				// printf("Transitioning to fire_st\n");
 				TriggerState = fire_st;
 				transmitter_run();
 			}
@@ -109,12 +117,12 @@ void trigger_tick() {
 			}
 			else {
 				TriggerState = complete_st;
-				printf("Transitioning to complete_st\n");
+				// printf("Transitioning to complete_st\n");
 			}
 			break;
 
 		case complete_st:
-			printf("Transmit complete!\n");
+			// printf("Transmit complete!\n");
 			if(!triggerPressed()) {
 				TriggerState = debounceRelease_st;
 				debounceCounter = 0;

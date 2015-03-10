@@ -16,5 +16,7 @@ void trigger_init();
 
 void trigger_tick();
 
+void trigger_enable();
+
 
 #endif /* TRIGGER_H_ */

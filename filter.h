@@ -60,6 +60,6 @@ bool filter_writeToFile(FILE *f_ptr, double value);
 
 void filter_runTest();
 
-void filter_runPowerTest(double inputSignal[], int size);
+void filter_runPowerTest(/*double inputSignal[], int size*/);
 
 #endif /* FILTER_H_ */

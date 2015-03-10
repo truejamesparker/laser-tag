@@ -18,6 +18,12 @@
 #define HISTOGRAM_MAX_BAR_DATA_IN_PIXELS (DISPLAY_HEIGHT - HISTOGRAM_BAR_Y_GAP -  HISTOGRAM_TOP_LABEL_HEIGHT)	// Max value (height) for histogram bar, in pixels.
 #define HISTOGRAM_MAX_BAR_LABEL_WIDTH 2	// Defined in terms of characters.
 
+#define DISPLAY_CHAR_WIDTH 6
+#define DISPLAY_CHAR_HEIGHT 8
+
+#define DISPLAY_WIDTH 320
+#define DISPLAY_HEIGHT 240
+
 typedef uint16_t histogram_index_t;	// Used to index each histogram bar.
 typedef uint16_t histogram_data_t;	// The data associated with each bar.
 
