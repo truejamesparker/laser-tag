@@ -28,5 +28,8 @@ void detector_clearHit();
  
 // Get the current hit counts.
 void detector_getHitCounts(detector_hitCount_t hitArray[]);
+
+// Test the detector alogorithm
+void detector_runTest(double testVecTrue[], double testVecFalse[], double goldenMean1, double goldenMean2);
  
 #endif /* DETECTOR_H_ */

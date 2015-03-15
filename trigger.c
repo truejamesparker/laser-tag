@@ -89,7 +89,7 @@ void trigger_tick() {
 
 		case init_st: // init state
 			if (triggerPressed()){
-				 printf("Trigger press detected!\n");
+				 // printf("Trigger press detected!\n");
 				TriggerState = debounceTrigger_st;
 			}
 			else {

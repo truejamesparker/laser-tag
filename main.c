@@ -252,11 +252,29 @@ void shooterMode() {
 int main() {
   buttons_init();
   switches_init();
+  double testVecTrue[10];
+  double testVecFalse[10];
+  double goldenMean1;
+  double goldenMean2;
+  uint16_t MEDIAN_INDEX = 4;
+
+  for(int i=0; i<10; i++) {
+      testVecTrue[i] = 50*(i+1);
+      if(i==MEDIAN_INDEX)
+        testVecTrue[i] = 2.4;
+  }
+
+  for(int i=0; i<10; i++) {
+      testVecFalse[i] = 50*(i+1);
+  }
+
+  goldenMean1 = testVecTrue[MEDIAN_INDEX];
+  goldenMean2 = testVecFalse[MEDIAN_INDEX];
+
+  detector_runTest(testVecTrue, testVecFalse, goldenMean1, goldenMean2);
 //  filter_runTest();
   printf("beginning test!\n");
-  if (buttons_read() & BUTTONS_BTN2_MASK)
-    shooterMode();
-  else
-    continuousPowerMode();
+  // continuousPowerMode();    
+  shooterMode();
   printf("Done!\n");
 }
