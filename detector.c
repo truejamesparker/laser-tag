@@ -105,7 +105,7 @@ bool detect_hit(bool debug) {
 	for(int i=0; i<NUM_FILTERS; i++) {
 		powerArray[i] = currentPowerValues[i];
 	}
-	
+
 	detector_insertionSort(sortedPowerIndexArray, powerArray, NUM_FILTERS);
 
 	uint16_t medianIndex = sortedPowerIndexArray[MEDIAN_INDEX]; // get index of median power
@@ -172,8 +172,6 @@ void detector_runTest(double testVecTrue[], double testVecFalse[], double golden
 		printf("Test Fail! Means not equal!\n");
 
 	printf("Golden Mean 1: %.2lf	Calculated Mean 1: %.2lf\n", goldenMean1, calc_goldenMean1);
-
-
 	printf("Beginning Test 2...\n");
 
 	for (int i=0; i<NUM_FILTERS; i++) {
@@ -187,15 +185,7 @@ void detector_runTest(double testVecTrue[], double testVecFalse[], double golden
 
 	if(goldenMean2!=calc_goldenMean2)
 		printf("Test Fail! Means not equal!\n");
-
 	printf("Golden Mean 2: %.2lf	Calculated Mean 2: %.2lf\n", goldenMean2, calc_goldenMean2);
 
 	printf("detector_runTest completed.\n");
-
 }
-
-
-
-
-
-
