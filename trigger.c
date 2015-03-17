@@ -79,7 +79,8 @@ void trigger_tick() {
 			break;
 	}
 
-	switch(TriggerState) { // Transitions
+	// Transitions
+	switch(TriggerState) { 
 		case start_st: // start state (transition to init)
 			// printf("Initializing Trigger SM\n");
 			if(runTrigger){

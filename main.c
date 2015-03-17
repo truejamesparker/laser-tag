@@ -257,18 +257,18 @@ int main() {
   double goldenMean1;
   double goldenMean2;
 
-  shooterMode();
-
   uint16_t MEDIAN_INDEX = 4;
 
   for(int i=0; i<10; i++) {
-      testVecTrue[i] = 50*(i+1);
+      testVecTrue[i] = 2.4;
       if(i==MEDIAN_INDEX)
-        testVecTrue[i] = 2.4;
+        testVecTrue[i] = 500;
   }
 
   for(int i=0; i<10; i++) {
       testVecFalse[i] = 50*(i+1);
+      if(i==MEDIAN_INDEX)
+    	  testVecTrue[i] = 49999;
   }
 
   goldenMean1 = testVecTrue[MEDIAN_INDEX];
@@ -277,7 +277,8 @@ int main() {
 //  detector_runTest(testVecTrue, testVecFalse, goldenMean1, goldenMean2);
 //  filter_runTest();
   printf("beginning test!\n");
-  // continuousPowerMode();
+//   continuousPowerMode();
+//  detector_init();
   shooterMode();
   printf("Done!\n");
 }
