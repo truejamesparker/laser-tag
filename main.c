@@ -274,7 +274,7 @@ int main() {
   goldenMean1 = testVecTrue[MEDIAN_INDEX];
   goldenMean2 = testVecFalse[MEDIAN_INDEX];
 
-  detector_runTest(testVecTrue, testVecFalse, goldenMean1, goldenMean2);
+//  detector_runTest(testVecTrue, testVecFalse, goldenMean1, goldenMean2);
 //  filter_runTest();
   printf("beginning test!\n");
   // continuousPowerMode();
