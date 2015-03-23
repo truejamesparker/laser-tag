@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include "detector.h"
 #include "filter.h"
+#include "transmitter.h"
 
 #define THRESHHOLD_FACTOR 200.00 // the "fudge factor" used doing relative powre comparisons
 #define SCALE_FACTOR 4095.00 // the scaling factor of the ADC values
@@ -56,13 +57,14 @@ void detector() {
 		filter_addNewInput(scaledAdcValue);
 		if(count==10) {
 			count=0; // reset the decimation counter
-			filter_firFilter();
-
+			filter_firFilter(); // run the FIR filter
+			// run each of the IIR filters and compute the power on each channel
 			for(int j=0; j<NUM_FILTERS; j++) {
 				filter_iirFilter(j);
 				filter_computePower(j, false, false);
 			}
 
+			// do not run detect_hit if already in lockout mode (previous hit)
 			if(!lockoutTimer_running()) {
 				if(detect_hit(false)) {
 					lockoutTimer_start(); // start lockout proceedures
@@ -92,8 +94,12 @@ bool detect_hit(bool debug) {
 
 	// get power values using filter_getCurrentPowerValue() unless in debug mode
 	for(int i=0; i<NUM_FILTERS; i++) {
-		if(!debug)
+		if(!debug) {
 			curPower = filter_getCurrentPowerValue(i);
+			if(transmitter_getFrequencyNumber()==i) {
+				curPower = 0;
+			}
+		}
 		else
 			curPower = debugArray[i];
 		currentPowerValues[i] = curPower;
@@ -173,15 +179,17 @@ void detector_runTest(double testVecTrue[], double testVecFalse[], double golden
 	}
 
 	// check if hit was detected using hit-true data
-	if(!detect_hit(true))
+	if(!detect_hit(true)) {
 		printf("Test Fail! Hit not detected with testVecTrue\n");
-	else
+	}
+	else {
 		printf("Success! Hit detected!\n");
-	
+	}
 	double calc_goldenMean1 = currentPowerValues[MEDIAN_INDEX];
 
-	if(goldenMean1!=calc_goldenMean1)
+	if(goldenMean1!=calc_goldenMean1) {
 		printf("Test Fail! Means not equal!\n");
+	}
 	
 
 	printf("Golden Mean 1: %.2lf	Calculated Mean 1: %.2lf\n", goldenMean1, calc_goldenMean1);
@@ -193,16 +201,19 @@ void detector_runTest(double testVecTrue[], double testVecFalse[], double golden
 	}
 
 	// check if hit was detected using hit-false data
-	if(detect_hit(true))
+	if(detect_hit(true)) {
 		printf("Test Fail! Hit detected with testVecFalse\n");
-	else
+	}
+	else {
 		printf("Success! Hit not detected!\n");
+	}
 	
 	double calc_goldenMean2 = currentPowerValues[MEDIAN_INDEX];
 
 	// compare calculated mean with evaluated mean
-	if(goldenMean2!=calc_goldenMean2)
+	if(goldenMean2!=calc_goldenMean2) {
 		printf("Test Fail! Means not equal!\n");
+	}
 
 	printf("Golden Mean 2: %.2lf	Calculated Mean 2: %.2lf\n", goldenMean2, calc_goldenMean2);
 

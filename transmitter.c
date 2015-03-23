@@ -174,3 +174,7 @@ void transmitter_runTest() {
 	}
 	printf("transmit_runTest complete!\n");
 }
+
+uint16_t transmitter_getFrequencyNumber() {
+	return freq_num;
+}

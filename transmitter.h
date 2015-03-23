@@ -33,6 +33,9 @@ void transmitter_tick();
 // Tests the transmitter.
 void transmitter_runTest();
 
+// Return your own frequency number
+uint16_t transmitter_getFrequencyNumber();
+
 // #define TRANSMITTER_OUTPUT_PIN 13	// JF1 (pg. 25 of ZYBO reference manual).
 
 
